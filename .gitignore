@@ -3,6 +3,9 @@ data/raw/*
 data/interim/*
 data/processed/*
 !data/**/.gitkeep
+# 집계 결과(소용량)는 커밋 - 재현/분석용
+!data/processed/sst_dashboard.json
+!data/processed/sst_monthly_by_sea.csv
 # 원시 질량분석 파일
 *.mzML
 *.mzXML
