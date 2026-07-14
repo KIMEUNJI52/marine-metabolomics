@@ -1,0 +1,34 @@
+name: marine-metab
+channels:
+  - conda-forge
+dependencies:
+  # --- Python 코어 ---
+  - python=3.12
+  - pip
+  # --- 데이터 가공/분석 ---
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - statsmodels
+  - pyarrow          # parquet 등 대용량 IO
+  - openpyxl         # 엑셀 읽기/쓰기
+  - xlrd
+  # --- 시각화 ---
+  - matplotlib
+  - seaborn
+  - plotly
+  # --- 노트북/커널 ---
+  - jupyterlab
+  - ipykernel
+  - notebook
+  # --- R (데이터 가공 + 대사체분석 기반) ---
+  - r-base=4.4
+  - r-tidyverse
+  - r-data.table
+  - r-irkernel       # Jupyter에서 R 사용
+  - r-devtools
+  - r-biocmanager    # Bioconductor 패키지 설치용
+  # --- pip 전용 패키지 ---
+  - pip:
+      - pymzml        # mzML 원시 질량분석 데이터 파싱

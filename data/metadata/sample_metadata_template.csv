@@ -1,0 +1,3 @@
+sample_id,species,site,region,collection_date,latitude,longitude,salinity_psu,water_temp_c,tidal_zone,plant_height_cm,notes
+S001,Vitex rotundifolia,신두리 사구,충남 태안,2026-05-10,36.816,126.180,28.5,17.2,supratidal,45.0,순비기나무 예시
+S002,Suaeda japonica,순천만 갯벌,전남 순천,2026-05-12,34.885,127.509,31.0,19.8,intertidal,22.0,칠면초 예시

@@ -1,0 +1,45 @@
+# ===== 데이터 (원본은 git에 올리지 않음 - 용량/보안) =====
+data/raw/*
+data/interim/*
+data/processed/*
+!data/**/.gitkeep
+# 원시 질량분석 파일
+*.mzML
+*.mzXML
+*.raw
+*.cdf
+*.wiff
+*.d/
+
+# ===== 결과물 (대용량 산출물 제외, 폴더는 유지) =====
+results/figures/*
+results/tables/*
+!results/**/.gitkeep
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+env/
+*.egg-info/
+.pytest_cache/
+
+# ===== R =====
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+
+# ===== conda =====
+# 환경 자체는 environment.yml로 재현하므로 폴더는 올리지 않음
+
+# ===== OS / 에디터 =====
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ===== 대용량/임시 =====
+*.log
+*.tmp
