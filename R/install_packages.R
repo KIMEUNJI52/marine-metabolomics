@@ -18,12 +18,12 @@ bioc_pkgs <- c(
   "MSnbase",     # 질량분석 데이터 구조
   "limma",       # 차등 분석
   "pcaMethods",  # 결측 대응 PCA
-  "impute"       # 결측치 대치
+  "impute",      # 결측치 대치
+  "ropls"        # PCA/PLS-DA/OPLS-DA (대사체 다변량 분석) - Bioconductor 패키지
 )
 
 # --- CRAN 통계/시각화 보조 패키지 ---
 cran_pkgs <- c(
-  "ropls",       # PCA/PLS-DA/OPLS-DA (대사체 다변량 분석)
   "vegan",       # 생태·군집 통계 (환경 연관 분석에 유용)
   "factoextra",  # 다변량 시각화
   "ggpubr",      # 출판용 그림
