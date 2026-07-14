@@ -25,6 +25,8 @@ data/geo/skorea-prov-0.01.json
 results/figures/*
 results/tables/*
 !results/**/.gitkeep
+# 연도별 수온 지도 이미지는 커밋
+!results/figures/korea_sst_yearly_*.png
 
 # ===== Python =====
 __pycache__/
