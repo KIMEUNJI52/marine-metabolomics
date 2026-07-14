@@ -11,6 +11,11 @@ data/processed/*
 *.wiff
 *.d/
 
+# ===== 지도 원본/중간 GeoJSON (대용량) — 단순화본만 커밋 =====
+data/geo/*-2018-geo.json
+data/geo/*-2013-geo.json
+data/geo/skorea-prov-0.01.json
+
 # ===== 결과물 (대용량 산출물 제외, 폴더는 유지) =====
 results/figures/*
 results/tables/*
