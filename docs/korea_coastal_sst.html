@@ -1,0 +1,262 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>대한민국 연안 표층수온 · 7월</title>
+</head>
+<body><title>대한민국 연안 표층수온 · 7월</title>
+<style>
+  :root{
+    --bg:#eef4f7; --surface:#ffffff; --surface-2:#f5f9fb;
+    --ink:#12303f; --muted:#5c7683; --hair:#dbe6ea;
+    --land:#e6ece9; --land-line:#bdccce; --sea:#d9e9f1; --sea-line:#c4dded;
+    --accent:#0d6e8c; --shadow:0 1px 3px rgba(18,48,63,.08),0 8px 30px rgba(18,48,63,.10);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0a171e; --surface:#102530; --surface-2:#0c1e27;
+      --ink:#e6f1f6; --muted:#8ba7b3; --hair:#1e3742;
+      --land:#1a333d; --land-line:#2c4b57; --sea:#0f2a35; --sea-line:#1b4152;
+      --accent:#4fb6d4; --shadow:0 1px 3px rgba(0,0,0,.4),0 10px 34px rgba(0,0,0,.45);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0a171e; --surface:#102530; --surface-2:#0c1e27;
+    --ink:#e6f1f6; --muted:#8ba7b3; --hair:#1e3742;
+    --land:#1a333d; --land-line:#2c4b57; --sea:#0f2a35; --sea-line:#1b4152;
+    --accent:#4fb6d4; --shadow:0 1px 3px rgba(0,0,0,.4),0 10px 34px rgba(0,0,0,.45);
+  }
+  :root[data-theme="light"]{
+    --bg:#eef4f7; --surface:#ffffff; --surface-2:#f5f9fb;
+    --ink:#12303f; --muted:#5c7683; --hair:#dbe6ea;
+    --land:#e6ece9; --land-line:#bdccce; --sea:#d9e9f1; --sea-line:#c4dded;
+    --accent:#0d6e8c; --shadow:0 1px 3px rgba(18,48,63,.08),0 8px 30px rgba(18,48,63,.10);
+  }
+  *{box-sizing:border-box}
+  .wrap{
+    font-family:"Malgun Gothic","맑은 고딕","Apple SD Gothic Neo","Noto Sans KR",system-ui,-apple-system,sans-serif;
+    color:var(--ink); background:var(--bg); min-height:100%;
+    padding:clamp(16px,3vw,34px); line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .card{
+    max-width:1060px; margin:0 auto; background:var(--surface);
+    border:1px solid var(--hair); border-radius:18px; box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  header{padding:clamp(20px,3vw,32px) clamp(20px,3vw,34px) 18px; border-bottom:1px solid var(--hair)}
+  .eyebrow{
+    font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--accent); font-weight:700; margin:0 0 8px;
+  }
+  h1{font-size:clamp(22px,3.4vw,30px); margin:0; font-weight:800; letter-spacing:-.01em; text-wrap:balance}
+  .sub{color:var(--muted); margin:8px 0 0; font-size:14.5px; max-width:60ch}
+  .chip{
+    display:inline-flex; align-items:center; gap:6px; margin-top:14px;
+    font-size:12px; font-weight:600; color:var(--muted);
+    background:var(--surface-2); border:1px solid var(--hair);
+    padding:5px 11px; border-radius:999px;
+  }
+  .chip b{color:var(--ink)}
+  .body{display:grid; grid-template-columns:minmax(340px,1.35fr) minmax(240px,1fr); gap:8px}
+  @media (max-width:760px){ .body{grid-template-columns:1fr} }
+  .mapcol{padding:14px clamp(12px,2vw,22px) 22px; position:relative}
+  .sidecol{padding:20px clamp(16px,2.4vw,26px) 22px; border-left:1px solid var(--hair)}
+  @media (max-width:760px){ .sidecol{border-left:none; border-top:1px solid var(--hair)} }
+  svg{width:100%; height:auto; display:block; overflow:visible}
+  .dot{cursor:pointer; transition:transform .12s ease}
+  @media (prefers-reduced-motion:reduce){ .dot{transition:none} }
+  .lbl-name{font-size:10.5px; fill:var(--muted); font-weight:600}
+  .lbl-temp{font-size:12.5px; fill:var(--ink); font-weight:800; font-variant-numeric:tabular-nums}
+  .sealbl{font-size:15px; fill:var(--muted); font-weight:700; opacity:.55; letter-spacing:.08em}
+  .dmz{stroke:var(--muted); stroke-width:1.4; stroke-dasharray:3 4; opacity:.5; fill:none}
+  .dmzlbl{font-size:9.5px; fill:var(--muted); opacity:.7; letter-spacing:.05em}
+
+  /* legend */
+  .legend h3,.tbl h3{font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:0 0 10px; font-weight:700}
+  .bar{height:14px; border-radius:7px; border:1px solid var(--hair)}
+  .ticks{display:flex; justify-content:space-between; margin-top:6px; font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums}
+  .legend{margin-bottom:24px}
+
+  /* table */
+  .tbl table{width:100%; border-collapse:collapse; font-size:13px}
+  .tbl caption{caption-side:top; text-align:left}
+  .grp td{padding:11px 4px 5px; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); font-weight:700}
+  .tbl tbody tr.row td{padding:5px 4px; border-bottom:1px solid var(--hair)}
+  .tbl .nm{color:var(--ink)}
+  .tbl .tp{text-align:right; font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap}
+  .sw{display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:7px; vertical-align:middle; border:1px solid rgba(0,0,0,.12)}
+
+  footer{padding:14px clamp(20px,3vw,34px) 22px; border-top:1px solid var(--hair); color:var(--muted); font-size:11.5px; line-height:1.6}
+  footer b{color:var(--ink)}
+
+  .tip{
+    position:absolute; pointer-events:none; z-index:5; opacity:0;
+    transform:translate(-50%,-118%); transition:opacity .1s ease;
+    background:var(--ink); color:var(--surface); padding:7px 10px; border-radius:9px;
+    font-size:12px; white-space:nowrap; box-shadow:0 6px 20px rgba(0,0,0,.25);
+  }
+  .tip b{font-variant-numeric:tabular-nums}
+  .tip .t-sea{opacity:.7; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em}
+</style>
+
+<div class="wrap">
+  <div class="card">
+    <header>
+      <p class="eyebrow">대한민국 연안 해양환경</p>
+      <h1>연안 표층수온 분포 · 7월</h1>
+      <p class="sub">동·서·남해 및 제주 연안 주요 관측지점의 표층수온을 색으로 나타냈습니다. 파랑(차가움) → 빨강(따뜻함).</p>
+      <span class="chip">📅 7월 평년 · <b>예시(모식) 값</b> — 실시간 관측 아님</span>
+    </header>
+
+    <div class="body">
+      <div class="mapcol">
+        <div id="map"></div>
+        <div class="tip" id="tip"></div>
+      </div>
+
+      <div class="sidecol">
+        <div class="legend">
+          <h3>표층수온 (°C)</h3>
+          <div class="bar" id="bar"></div>
+          <div class="ticks"><span>20</span><span>22</span><span>24</span><span>26</span><span>27</span></div>
+        </div>
+        <div class="tbl">
+          <h3>관측지점별 수온</h3>
+          <table id="tbl"><tbody></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      ※ 표시된 수온은 <b>7월 평년(모식) 예시값</b>이며 특정 일자의 실측·실시간 관측값이 아닙니다.
+      실제 분석에는 <b>국립해양조사원(KHOA)</b>·<b>국립수산과학원(NIFS)</b> 등의 관측·재분석 자료를 받아 교체하세요.
+      해안선은 표현을 위해 단순화된 근사 형상입니다.
+    </footer>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ── 관측지점: [이름, 경도, 위도, 7월 평년 SST(°C), 해역] ──
+  const STATIONS=[
+    ["고성",128.47,38.38,21.4,"동해"],["속초",128.59,38.19,21.8,"동해"],
+    ["강릉",128.92,37.77,22.3,"동해"],["울진",129.40,36.99,22.6,"동해"],
+    ["포항",129.56,36.05,23.2,"동해"],["울산",129.36,35.50,23.6,"동해"],
+    ["부산",129.05,35.10,24.2,"남해"],["통영",128.42,34.85,24.6,"남해"],
+    ["여수",127.75,34.74,24.8,"남해"],["고흥",127.28,34.51,24.9,"남해"],
+    ["완도",126.75,34.31,25.1,"남해"],
+    ["목포",126.39,34.79,25.2,"서해"],["군산",126.71,35.98,24.6,"서해"],
+    ["보령",126.50,36.33,24.1,"서해"],["태안",126.30,36.75,23.7,"서해"],
+    ["인천",126.60,37.45,23.4,"서해"],
+    ["제주",126.53,33.51,25.7,"제주"],["서귀포",126.56,33.24,26.2,"제주"]
+  ];
+  // ── 남한 해안선(단순화 근사) [경도,위도] 시계방향 ──
+  const COAST=[
+    [126.68,37.83],[126.50,37.60],[126.62,37.45],[126.38,37.20],[126.55,36.95],
+    [126.30,36.75],[126.48,36.55],[126.50,36.33],[126.42,36.10],[126.66,35.98],
+    [126.48,35.70],[126.38,35.40],[126.30,35.10],[126.25,34.90],[126.39,34.79],
+    [126.30,34.55],[126.50,34.29],[126.78,34.31],[127.05,34.55],[127.28,34.51],
+    [127.50,34.72],[127.75,34.74],[127.92,34.90],[128.14,34.88],[128.42,34.85],
+    [128.66,35.00],[128.86,35.05],[129.05,35.10],[129.20,35.35],[129.36,35.50],
+    [129.43,35.80],[129.56,36.05],[129.44,36.42],[129.40,36.99],[129.28,37.32],
+    [129.06,37.56],[128.92,37.77],[128.74,38.01],[128.59,38.19],[128.47,38.38],
+    [128.36,38.61],[127.80,38.34],[127.20,38.02],[126.68,37.83]
+  ];
+  const JEJU=[
+    [126.16,33.36],[126.31,33.53],[126.55,33.56],[126.80,33.52],[126.95,33.40],
+    [126.86,33.23],[126.56,33.17],[126.27,33.21],[126.16,33.36]
+  ];
+  const DMZ=[[126.68,37.83],[127.20,38.02],[127.80,38.34],[128.36,38.61]];
+
+  // ── 발산형(파랑↔빨강) 온도 색상 램프 ──
+  const STOPS=[[20,[46,112,178]],[22,[126,170,206]],[23.5,[233,221,199]],[25,[228,150,102]],[27,[196,58,44]]];
+  function color(t){
+    t=Math.max(STOPS[0][0],Math.min(STOPS[STOPS.length-1][0],t));
+    for(let i=0;i<STOPS.length-1;i++){
+      const [a,ca]=STOPS[i],[b,cb]=STOPS[i+1];
+      if(t<=b){const f=(t-a)/(b-a);
+        return `rgb(${ca.map((c,j)=>Math.round(c+(cb[j]-c)*f)).join(',')})`;}
+    }
+    return `rgb(${STOPS[STOPS.length-1][1].join(',')})`;
+  }
+
+  // ── 위경도 → 화면 투영 (등장방형, 경도는 cos(위도) 보정) ──
+  const LON0=125.55, LATT=38.98, K=Math.cos(36*Math.PI/180), S=105;
+  const P=([lon,lat])=>[(lon-LON0)*S*K, (LATT-lat)*S];
+  const path=a=>a.map((p,i)=>(i?'L':'M')+P(p).map(v=>v.toFixed(1)).join(' ')).join('')+'Z';
+  const line=a=>a.map((p,i)=>(i?'L':'M')+P(p).map(v=>v.toFixed(1)).join(' ')).join('');
+
+  // ── 경계 계산 ──
+  let xs=[],ys=[];
+  [...COAST,...JEJU,...STATIONS.map(s=>[s[1],s[2]])].forEach(p=>{const[x,y]=P(p);xs.push(x);ys.push(y);});
+  const PAD=64, minX=Math.min(...xs)-PAD, minY=Math.min(...ys)-30,
+        w=Math.max(...xs)-Math.min(...xs)+PAD*2, h=Math.max(...ys)-Math.min(...ys)+52;
+
+  const side=s=>({"서해":"W","동해":"E","남해":"S","제주":"S"})[s];
+
+  // 관측지점 마커 + 라벨
+  const ABOVE=new Set(["고성","제주"]); // 인접 지점과 겹침 방지: 라벨을 점 위로
+  let dots="";
+  STATIONS.forEach((s,i)=>{
+    const[nm,lon,lat,t,sea]=s, [x,y]=P([lon,lat]), sd=side(sea), c=color(t);
+    let lx=x,ly=y,anc="middle",ny,ty;
+    if(ABOVE.has(nm)){anc="middle";lx=x;ny=y-19;ty=y-7;}
+    else if(sd==="W"){lx=x-13;anc="end";ny=y-3;ty=y+9;}
+    else if(sd==="E"){lx=x+13;anc="start";ny=y-3;ty=y+9;}
+    else{anc="middle";ny=y+16;ty=y+28;}
+    dots+=`<g class="dot" data-i="${i}">
+      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="8.5" fill="${c}" stroke="var(--surface)" stroke-width="2.2"/>
+      <text class="lbl-name" x="${lx.toFixed(1)}" y="${ny.toFixed(1)}" text-anchor="${anc}">${nm}</text>
+      <text class="lbl-temp" x="${lx.toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="${anc}">${t.toFixed(1)}°</text>
+    </g>`;
+  });
+
+  const seaLbl=(txt,lon,lat)=>{const[x,y]=P([lon,lat]);return `<text class="sealbl" x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle">${txt}</text>`;};
+
+  document.getElementById("map").innerHTML=
+    `<svg viewBox="${minX.toFixed(1)} ${minY.toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)}" role="img" aria-label="대한민국 연안 표층수온 지도">
+      <rect x="${minX.toFixed(1)}" y="${minY.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" fill="var(--sea)"/>
+      ${seaLbl("동 해",129.92,37.48)}
+      ${seaLbl("서 해",125.75,35.6)}
+      ${seaLbl("남 해",127.55,33.95)}
+      <path class="dmz" d="${line(DMZ)}"/>
+      <text class="dmzlbl" x="${P([127.2,38.02])[0].toFixed(1)}" y="${(P([127.2,38.02])[1]-6).toFixed(1)}" text-anchor="middle">군사분계선</text>
+      <path d="${path(COAST)}" fill="var(--land)" stroke="var(--land-line)" stroke-width="1.4" stroke-linejoin="round"/>
+      <path d="${path(JEJU)}" fill="var(--land)" stroke="var(--land-line)" stroke-width="1.4" stroke-linejoin="round"/>
+      ${dots}
+    </svg>`;
+
+  // 범례 그라디언트
+  const grad=[];for(let i=0;i<=10;i++){const t=20+7*i/10;grad.push(color(t)+" "+(i*10)+"%");}
+  document.getElementById("bar").style.background="linear-gradient(90deg,"+grad.join(",")+")";
+
+  // 해역별 표
+  const order=["동해","서해","남해","제주"],by={};
+  STATIONS.forEach(s=>{(by[s[4]]=by[s[4]]||[]).push(s);});
+  let rows="";
+  order.forEach(sea=>{
+    rows+=`<tr class="grp"><td colspan="2">${sea}</td></tr>`;
+    by[sea].forEach(s=>{rows+=`<tr class="row"><td class="nm"><span class="sw" style="background:${color(s[3])}"></span>${s[0]}</td><td class="tp">${s[3].toFixed(1)}°C</td></tr>`;});
+  });
+  document.querySelector("#tbl tbody").innerHTML=rows;
+
+  // 호버 툴팁
+  const tip=document.getElementById("tip"),mapEl=document.getElementById("map");
+  mapEl.querySelectorAll(".dot").forEach(g=>{
+    const s=STATIONS[+g.dataset.i];
+    g.addEventListener("mousemove",e=>{
+      const r=mapEl.getBoundingClientRect();
+      tip.style.left=(e.clientX-r.left)+"px";tip.style.top=(e.clientY-r.top)+"px";
+      tip.style.opacity="1";
+      tip.innerHTML=`<div class="t-sea">${s[4]}</div>${s[0]} · <b>${s[3].toFixed(1)}°C</b>`;
+      g.querySelector("circle").setAttribute("r","10.5");
+    });
+    g.addEventListener("mouseleave",()=>{tip.style.opacity="0";g.querySelector("circle").setAttribute("r","8.5");});
+  });
+})();
+</script>
+
+</body>
+</html>
