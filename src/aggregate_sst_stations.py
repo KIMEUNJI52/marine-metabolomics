@@ -1,7 +1,7 @@
-"""관측소별 표층수온 집계.
+"""관측소별 표층수온 집계 (연도 차원 포함).
 
-각 관측소(강릉(bgna3) 등)별로 표층수온 전체 평균 + 월별 평균을 산출.
-출력: data/processed/sst_stations.json  (지도 표시용, 좌표는 별도 매핑 필요)
+각 관측소별로 (전체 + 연도별) × (연평균 + 월별) 표층수온을 산출.
+출력: data/processed/sst_stations.json
 """
 from __future__ import annotations
 
@@ -12,7 +12,6 @@ import zipfile
 from collections import defaultdict
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -22,17 +21,25 @@ OUT.mkdir(parents=True, exist_ok=True)
 
 SEA = {"es": "동해", "ss": "남해", "ys": "서해"}
 MONTH_RE = re.compile(r"(\d{1,2})\s*월")
+YEAR_RE = re.compile(r"(20\d{2})")
+
+
+def blank():
+    return {"msum": [0.0] * 12, "mn": [0] * 12}
 
 
 def main():
-    # station -> {sea, sum, n, month_sum[12], month_n[12]}
-    st = defaultdict(lambda: {"sea": None, "sum": 0.0, "n": 0,
-                              "msum": [0.0] * 12, "mn": [0] * 12})
+    # station -> {sea, years: {year: {msum[12], mn[12]}}}
+    st = defaultdict(lambda: {"sea": None, "years": defaultdict(blank)})
+    years = set()
     for zp in sorted(SRC_DIR.rglob("*.zip")):
         prefix = zp.stem.split("_")[0].lower()
         sea = SEA.get(prefix)
-        if sea is None:
+        ym = YEAR_RE.search(zp.stem)
+        if sea is None or not ym:
             continue
+        year = int(ym.group(1))
+        years.add(year)
         with zipfile.ZipFile(zp) as z:
             for name in z.namelist():
                 if not name.lower().endswith(".csv"):
@@ -41,45 +48,54 @@ def main():
                 if not mm:
                     continue
                 month = int(mm.group(1)) - 1
-                df = pd.read_csv(io.BytesIO(z.read(name)), encoding="cp949",
-                                 usecols=[0, 2])
+                df = pd.read_csv(io.BytesIO(z.read(name)), encoding="cp949", usecols=[0, 2])
                 df.columns = ["station", "sst"]
                 df["sst"] = pd.to_numeric(df["sst"], errors="coerce")
                 df = df[(df["sst"] >= -5) & (df["sst"] <= 40)]
-                grp = df.groupby("station")["sst"]
-                for station, s in grp:
+                for station, s in df.groupby("station")["sst"]:
                     rec = st[station]
                     rec["sea"] = sea
-                    rec["sum"] += float(s.sum())
-                    rec["n"] += int(s.size)
-                    rec["msum"][month] += float(s.sum())
-                    rec["mn"][month] += int(s.size)
+                    yr = rec["years"][year]
+                    yr["msum"][month] += float(s.sum())
+                    yr["mn"][month] += int(s.size)
         print(f"  처리: {zp.name}")
+
+    years = sorted(years)
+
+    def monthly_and_mean(msum, mn):
+        monthly = [round(msum[i] / mn[i], 2) if mn[i] else None for i in range(12)]
+        tot_s = sum(msum)
+        tot_n = sum(mn)
+        mean = round(tot_s / tot_n, 2) if tot_n else None
+        return monthly, mean, tot_n
 
     stations = []
     for name, r in sorted(st.items()):
-        monthly = [round(r["msum"][i] / r["mn"][i], 2) if r["mn"][i] else None
-                   for i in range(12)]
+        # 연도별
+        by_year = {}
+        all_msum = [0.0] * 12
+        all_mn = [0] * 12
+        for y in years:
+            if y not in r["years"]:
+                continue
+            yy = r["years"][y]
+            monthly, mean, n = monthly_and_mean(yy["msum"], yy["mn"])
+            by_year[str(y)] = {"monthly": monthly, "mean": mean, "n": n}
+            for i in range(12):
+                all_msum[i] += yy["msum"][i]
+                all_mn[i] += yy["mn"][i]
+        monthly, mean, n = monthly_and_mean(all_msum, all_mn)
         stations.append({
-            "name": name,
-            "sea": r["sea"],
-            "mean": round(r["sum"] / r["n"], 2),
-            "n": r["n"],
-            "monthly": monthly,
+            "name": name, "sea": r["sea"],
+            "mean": mean, "n": n, "monthly": monthly,   # 전체(모든 연도)
+            "by_year": by_year,
         })
-    payload = {"variable": "표층수온(℃)", "count": len(stations), "stations": stations}
-    p = OUT / "sst_stations.json"
-    json.dump(payload, open(p, "w", encoding="utf-8"),
+
+    payload = {"variable": "표층수온(℃)", "years": years,
+               "count": len(stations), "stations": stations}
+    json.dump(payload, open(OUT / "sst_stations.json", "w", encoding="utf-8"),
               ensure_ascii=False, separators=(",", ":"))
-    print(f"\n[저장] {p}  ({len(stations)} 관측소)")
-    print("\n=== 해역별 관측소 수 ===")
-    from collections import Counter
-    c = Counter(s["sea"] for s in stations)
-    for k, v in c.items():
-        print(f"  {k}: {v}")
-    print("\n=== 관측소 목록 (이름 | 해역 | 평균℃ | 관측수) ===")
-    for s in stations:
-        print(f"  {s['name']} | {s['sea']} | {s['mean']} | {s['n']:,}")
+    print(f"\n[저장] sst_stations.json  ({len(stations)} 관측소, 연도 {years})")
 
 
 if __name__ == "__main__":

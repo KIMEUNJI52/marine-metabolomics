@@ -63,14 +63,21 @@ def main():
             missing.append((code, label))
             continue
         sea = "제주" if code in JEJU else s["sea"]
+        # 연도별 월배열 + 연평균 (전체 + 각 연도)
+        monthly = {"전체": s["monthly"]}
+        mean = {"전체": s["mean"]}
+        for y, yy in s.get("by_year", {}).items():
+            monthly[y] = yy["monthly"]
+            mean[y] = yy["mean"]
         out.append({
             "name": label, "lon": lon, "lat": lat, "sea": sea,
-            "mean": s["mean"], "monthly": s["monthly"], "n": s["n"],
+            "n": s["n"], "monthly": monthly, "mean": mean,
         })
-    out.sort(key=lambda x: x["mean"])
+    out.sort(key=lambda x: x["mean"]["전체"])
     payload = {
         "variable": "표층수온(℃)",
         "note": "국립수산과학원 실시간 연안 관측 실측 평균. 좌표는 지역명 기반 근사값.",
+        "years": src.get("years", []),
         "count": len(out),
         "stations": out,
     }
@@ -79,9 +86,9 @@ def main():
     print(f"[저장] sst_map_stations.json  ({len(out)}개 관측소)")
     if missing:
         print("경고 - 매칭 실패:", missing)
-    print("\n연평균 최저/최고:")
-    print(f"  최저: {out[0]['name']} {out[0]['mean']}°C")
-    print(f"  최고: {out[-1]['name']} {out[-1]['mean']}°C")
+    print("\n연평균(전체) 최저/최고:")
+    print(f"  최저: {out[0]['name']} {out[0]['mean']['전체']}°C")
+    print(f"  최고: {out[-1]['name']} {out[-1]['mean']['전체']}°C")
     print(f"관측수 최소: {min(s['n'] for s in out):,} / 최대: {max(s['n'] for s in out):,}")
 
 
